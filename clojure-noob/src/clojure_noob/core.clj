@@ -95,24 +95,24 @@
           asym-body-parts))
 
 (def base-alien-body-parts [{:name "head" :size 3}
-                      {:name "eye-1" :size 1}
-                      {:name "ear-1" :size 1}
+                      {:name "eye-01" :size 1}
+                      {:name "ear-01" :size 1}
                       {:name "mouth" :size 1}
                       {:name "nose" :size 1}
                       {:name "neck" :size 2}
-                      {:name "shoulder-1" :size 3}
-                      {:name "upper-arm-1" :size 3}
+                      {:name "shoulder-01" :size 3}
+                      {:name "upper-arm-01" :size 3}
                       {:name "chest" :size 10}
                       {:name "back" :size 10}
-                      {:name "forearm-1" :size 3}
+                      {:name "forearm-01" :size 3}
                       {:name "abdomen" :size 6}
-                      {:name "kidney-1" :size 1}
-                      {:name "hand-1" :size 2}
-                      {:name "knee-1" :size 2}
-                      {:name "thigh-1" :size 4}
-                      {:name "lower-leg-1" :size 3}
-                      {:name "achilles-1" :size 1}
-                      {:name "foot-1" :size 2}])
+                      {:name "kidney-01" :size 1}
+                      {:name "hand-01" :size 2}
+                      {:name "knee-01" :size 2}
+                      {:name "thigh-01" :size 4}
+                      {:name "lower-leg-01" :size 3}
+                      {:name "achilles-01" :size 1}
+                      {:name "foot-01" :size 2}])
 
 (defn alien-parts
   "Returns a set of additional alien limbs"
@@ -122,7 +122,7 @@
       (if (> iteration 5)
         new-parts
         (do
-          (let [new-parts (conj new-parts {:name (clojure.string/replace (:name part) #"-1" (str "-" iteration))
+          (let [new-parts (conj new-parts {:name (clojure.string/replace (:name part) #"-01" (str "-" (format "%02d" iteration) ))
                                            :size (:size part)})]
             (recur (inc iteration) new-parts))
           )))
@@ -144,7 +144,7 @@
       (if (> iteration limit)
         new-parts
         (do
-          (let [new-parts (conj new-parts {:name (clojure.string/replace (:name part) #"-1" (str "-" iteration))
+          (let [new-parts (conj new-parts {:name (clojure.string/replace (:name part) #"-01" (str "-" (format "%02d" iteration)))
                                            :size (:size part)})]
             (recur (inc iteration) new-parts))
           )))
