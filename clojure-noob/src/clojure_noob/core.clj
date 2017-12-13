@@ -1,0 +1,159 @@
+(ns clojure-noob.core
+  (:gen-class))
+
+(defn -main
+  "I don't do a whole lot ... yet."
+  [& args]
+  (println "I'm a little teapot!"))
+
+(defn greet
+  "I greet someone"
+  ([name]
+    (println (str "Hello, "  name)))
+  ([]
+    (greet "No-Name")))
+
+(defn pets_vector
+  "Returns a vector of pets"
+  ([]
+   ["Scramasax" "Grumpy" "Hiccup"]))
+
+(defn pets_list
+  "Returns a list of pets"
+  ([]
+   '("Scramasax" "Grumpy" "Hiccup")))
+
+(defn pets_set
+  "Returns a set of pets"
+  ([]
+   #{"Scramasax" "Grumpy" "Hiccup"}))
+
+(defn pets_hash-map
+  "Returns a hash-map of pets and their weight"
+  ([]
+   {:grumpy 300 :hiccup 200 :scramasax 3000}))
+
+(defn pet_weight
+  "Returns the weight of a pet"
+  ([key]
+   ((pets_hash-map) key))
+  ([]
+    (pet_weight
+      (first (keys (pets_hash-map))))))
+
+(defn add_100
+  "Adds 100 to the input number"
+  ([number]
+    (+ number 100)))
+
+(defn dec_maker
+  "Creates a custom decrementor"
+  ([dec-by]
+    #(- % dec-by)))
+
+; Decreases the value of a number by 9
+(def dec9 (dec_maker 9))
+
+(defn mapset
+  "Takes in a vector and returns it as a set"
+  ([f coll]
+   (set (map f coll))))
+
+
+;Generic Asymmetric Body Parts
+(def asym-body-parts [{:name "head" :size 3}
+                             {:name "left-eye" :size 1}
+                             {:name "left-ear" :size 1}
+                             {:name "mouth" :size 1}
+                             {:name "nose" :size 1}
+                             {:name "neck" :size 2}
+                             {:name "left-shoulder" :size 3}
+                             {:name "left-upper-arm" :size 3}
+                             {:name "chest" :size 10}
+                             {:name "back" :size 10}
+                             {:name "left-forearm" :size 3}
+                             {:name "abdomen" :size 6}
+                             {:name "left-kidney" :size 1}
+                             {:name "left-hand" :size 2}
+                             {:name "left-knee" :size 2}
+                             {:name "left-thigh" :size 4}
+                             {:name "left-lower-leg" :size 3}
+                             {:name "left-achilles" :size 1}
+                             {:name "left-foot" :size 2}])
+
+(defn matching-part
+  [part]
+  {:name (clojure.string/replace (:name part) #"^left-" "right-")
+   :size (:size part)})
+
+(defn symmetrize-body-parts
+  "Expects a seq of maps that have a :name and :size"
+  [asym-body-parts]
+  (reduce (fn [final-body-parts part]
+            (into final-body-parts (set [part (matching-part part)])))
+          []
+          asym-body-parts))
+
+(def base-alien-body-parts [{:name "head" :size 3}
+                      {:name "eye-1" :size 1}
+                      {:name "ear-1" :size 1}
+                      {:name "mouth" :size 1}
+                      {:name "nose" :size 1}
+                      {:name "neck" :size 2}
+                      {:name "shoulder-1" :size 3}
+                      {:name "upper-arm-1" :size 3}
+                      {:name "chest" :size 10}
+                      {:name "back" :size 10}
+                      {:name "forearm-1" :size 3}
+                      {:name "abdomen" :size 6}
+                      {:name "kidney-1" :size 1}
+                      {:name "hand-1" :size 2}
+                      {:name "knee-1" :size 2}
+                      {:name "thigh-1" :size 4}
+                      {:name "lower-leg-1" :size 3}
+                      {:name "achilles-1" :size 1}
+                      {:name "foot-1" :size 2}])
+
+(defn alien-parts
+  "Returns a set of additional alien limbs"
+  [part]
+  (let [parts [part]]
+    (loop [iteration 1 new-parts parts]
+      (if (> iteration 5)
+        new-parts
+        (do
+          (let [new-parts (conj new-parts {:name (clojure.string/replace (:name part) #"-1" (str "-" iteration))
+                                           :size (:size part)})]
+            (recur (inc iteration) new-parts))
+          )))
+    ))
+
+(defn alien-body-parts
+  "Expects a seq of maps that have a :name and :size"
+  [asym-body-parts]
+  (reduce (fn [final-body-parts part]
+            (into final-body-parts (set (alien-parts part))))
+          []
+          asym-body-parts))
+
+(defn generic-parts
+  "Returns a number of additional limbs up to the limit specified by the `limit` param"
+  [part limit]
+  (let [parts [part]]
+    (loop [iteration 1 new-parts parts]
+      (if (> iteration limit)
+        new-parts
+        (do
+          (let [new-parts (conj new-parts {:name (clojure.string/replace (:name part) #"-1" (str "-" iteration))
+                                           :size (:size part)})]
+            (recur (inc iteration) new-parts))
+          )))
+    ))
+
+(defn generic-body-parts
+  "Expects a seq of maps that have a :name and :size. Creates `limit` number of limbs"
+  [asym-body-parts limb-limit]
+  (reduce (fn [final-body-parts part]
+            (into final-body-parts (set (generic-parts part limb-limit))))
+          []
+          asym-body-parts))

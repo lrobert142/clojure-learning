@@ -1,0 +1,6 @@
+# Junk Files
+.DS_Store
+
+# IntelliJ Items
+.idea/
+*.iml
