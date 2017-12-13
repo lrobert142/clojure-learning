@@ -1,10 +1,16 @@
 (ns clojure-noob.core
   (:gen-class))
 
+
+; Chapter 1: Intro
+
 (defn -main
-  "I don't do a whole lot ... yet."
+  "Prints a message and exits. This is the main function executed when executing `lein run`"
   [& args]
   (println "I'm a little teapot!"))
+
+
+; Chapter 3: Basics
 
 (defn greet
   "I greet someone"
@@ -157,3 +163,12 @@
             (into final-body-parts (set (generic-parts part limb-limit))))
           []
           asym-body-parts))
+
+
+; Chapter 4: Abstractions
+
+(def sum #(reduce + %))
+(def avg #(/ (sum %) (count %)))
+(defn stats
+  [numbers]
+  (map #(% numbers) [sum count avg]))
