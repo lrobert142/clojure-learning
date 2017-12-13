@@ -129,7 +129,7 @@
     ))
 
 (defn alien-body-parts
-  "Expects a seq of maps that have a :name and :size"
+  "Expects a seq of maps that have a :name and :size. Creates 5 limb variations for each limb"
   [asym-body-parts]
   (reduce (fn [final-body-parts part]
             (into final-body-parts (set (alien-parts part))))
