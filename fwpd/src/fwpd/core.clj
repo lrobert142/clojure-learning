@@ -34,6 +34,7 @@
                  (map vector vamp-keys unmapped-row)))
        rows))
 
+;(glitter-filter 2 (mapify (parse (slurp filename))))
 (defn glitter-filter
   "Returns a seq of records that have a 'glitter index' greater than the minimum amount"
   [minimum-glitter records]
@@ -68,6 +69,15 @@
 ; From the individual record into the names vector...
 ; And repeat until we have no more records
 
+;(updateSuspectsFile (append (mapify (parse (slurp filename))) {:name "Bob" :glitter-index 0} ) )
+(defn updateSuspectsFile
+  "Updates the file of suspects, converting to the CSV format if needed"
+  [suspects]
+  (if (string? suspects)
+    (spit filename suspects)
+    (updateSuspectsFile (convertToCsv suspects))))
+
+;(append (mapify (parse (slurp filename))) {:name "Bob" :glitter-index 0} )
 (defn append
   "Appends a new suspect to a list of current suspects (in-memory only)"
   ([current-suspects new-suspect-name new-suspect-index]
@@ -78,12 +88,12 @@
      (into current-suspects
            (vector {:name (:name new-suspect)
                     :glitter-index  (:glitter-index new-suspect)}))
-     (println "Invalid Suspect Data"))
-   ))
+     (println "Invalid Suspect Data"))))
 
-(defn updateSuspectsFile
-  "Updates the file of suspects, converting to the CSV format if needed"
-  [suspects]
-  (if (string? suspects)
-    (spit filename suspects)
-    (updateSuspectsFile (convertToCsv suspects))))
+;(removeSuspect (mapify (parse (slurp filename))) "Edward Cullen")
+(defn removeSuspect
+  "Removes a suspect with the given name from the list (in-memory only)"
+  [current-suspects new-suspect-name]
+  (remove (fn [suspect]
+            (= (:name suspect) new-suspect-name))
+          current-suspects))
