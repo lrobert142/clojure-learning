@@ -41,6 +41,20 @@
 
 ; CH04 Exercises
 
+; Solution sourced from https://stackoverflow.com/questions/27914026/find-if-a-map-contains-multiple-keys
+(defn validate
+  "Validates that a record has the passed in keys"
+  [validation-keys record]
+  (every? record validation-keys))
+
+(defn convertToCsv
+  "Converts a map of records to a CSV string"
+  [records]
+  (reduce (fn [output record]
+            (str (clojure.string/join ","  [(:name record) (:glitter-index record)]) "\n" output))
+          ""
+          records))
+
 (defn glitter-names
   "Returns a seq of names that have a glitter index higher than the specified amount"
   [minimum-glitter records]
@@ -60,6 +74,16 @@
    (append current-suspects {:name new-suspect-name
                              :glitter-index new-suspect-index}))
   ([current-suspects new-suspect]
-   (into current-suspects
-         (vector {:name (:name new-suspect)
-                  :glitter-index  (:glitter-index new-suspect)}))))
+   (if (validate vamp-keys new-suspect)
+     (into current-suspects
+           (vector {:name (:name new-suspect)
+                    :glitter-index  (:glitter-index new-suspect)}))
+     (println "Invalid Suspect Data"))
+   ))
+
+(defn updateSuspectsFile
+  "Updates the file of suspects, converting to the CSV format if needed"
+  [suspects]
+  (if (string? suspects)
+    (spit filename suspects)
+    (updateSuspectsFile (convertToCsv suspects))))
