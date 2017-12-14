@@ -39,6 +39,8 @@
   [minimum-glitter records]
   (filter #(>= (:glitter-index %) minimum-glitter) records))
 
+; CH04 Exercises
+
 (defn glitter-names
   "Returns a seq of names that have a glitter index higher than the specified amount"
   [minimum-glitter records]
@@ -51,3 +53,13 @@
 ; Put the name (as a vector for full name, not individual letters)...
 ; From the individual record into the names vector...
 ; And repeat until we have no more records
+
+(defn append
+  "Appends a new suspect to a list of current suspects (in-memory only)"
+  ([current-suspects new-suspect-name new-suspect-index]
+   (append current-suspects {:name new-suspect-name
+                             :glitter-index new-suspect-index}))
+  ([current-suspects new-suspect]
+   (into current-suspects
+         (vector {:name (:name new-suspect)
+                  :glitter-index  (:glitter-index new-suspect)}))))
