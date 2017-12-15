@@ -172,3 +172,53 @@
 (defn stats
   [numbers]
   (map #(% numbers) [sum count avg]))
+
+
+; Chapter 9: Concurrency
+
+(defn bing-search
+  "Searches for a term on Bing and prints the HTML of the page"
+  [search-term]
+  (println (slurp (str "https://www.bing.com/search?q=" search-term))))
+;Fun fact, Google requires a user-agent or it will throw a 400/403 error
+;Supposedly to stop bots scraping their search pages :/
+
+(defn bing-search-future
+  "Searches for a term on Bing and prints the HTML of that page using `future`"
+  [search-term]
+  (let [result (future (slurp (str "https://www.bing.com/search?q=" search-term)))]
+    (println "Fetching results, please wait...")
+    (println @result)))
+;Create a "future" (referenced by `result`) which will run the search on another thread
+;Then print a message about fetching results so the users knows to wait
+;Then print the found results when we finally have them
+
+;Define a delay that will be `force`d later
+(def bing-example-search-delay
+  (delay (do
+           (println "New results found!!!")
+           (slurp (str "https://www.bing.com/search?q=example")))))
+
+(defn bing-search-delay
+  "Searches \"example\" on Bing and prints the HTML of that page using a predefined `delay`"
+  []
+  (let [search-results bing-example-search-delay]
+    (println "Search **started**, please wait...")
+    (println (force search-results))))
+;let the search results = our custom delay
+;Show a message to the user to let them know we are loading and...
+;`force` the delay which will show a message (only the first time it is called)...
+;then load and return the contents of a URL
+
+(def search-promise (promise))
+
+(defn bing-search-promise
+  "Searches for a term on Bing and prints the HTML of that page using `promise`"
+  [search-term]
+  (do
+    (println "Searching...")
+    (deliver search-promise (slurp (str "https://www.bing.com/search?q=" search-term)))
+    (println @search-promise)))
+;Show a message to let the user know we are about to start searching
+;`deliver` the promise to actual make the request
+;`println` the result of the promise (what we retrieved from the URL)
