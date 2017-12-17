@@ -1,6 +1,6 @@
 (ns clojure-noob.core
   (:gen-class))
-
+(use '[clojure.string :only [index-of]])
 
 ; Chapter 1: Intro
 
@@ -222,3 +222,76 @@
 ;Show a message to let the user know we are about to start searching
 ;`deliver` the promise to actual make the request
 ;`println` the result of the promise (what we retrieved from the URL)
+
+(defn search-future
+  "Searches for a term on the provided search engine and returns a future of the page's HTML"
+  [search-engine search-term]
+  (future (slurp (str "https://" search-engine "/search?q=" search-term))))
+
+(defn search
+  "Searches for a term using all the search engines provided and returns a vector of mapped results"
+  [search-term search-engines]
+  (reduce (fn [results search-engine]
+            (if (.contains search-engine "google")
+              (do
+                (println "Cannot search via Google, it will 403")
+                results)
+              (into results (let [result (search-future search-engine search-term)]
+                              (println (str "Searching Engine: " search-engine))
+                              (list {:engine search-engine :html @result})))
+              ))
+          []
+          search-engines))
+;`reduce` each of search-engines into a new vector containing results which...
+;if the URL contains "google", display an error and leave the results unaltered, otherwise it...
+;lets a new `future`, prints a message to the user to let them know we are searching and...
+;creates and returns a new list of maps where each map...
+;has the name of the :engine (var) and the retrieved value of the :result (@result) from the URL
+;;
+;NOTE: As @result is a `future`, it will asynchronously make these URL calls and append when
+;the data comes back
+
+(defn search-links
+  "Search for a term using the provided search engines and returns a vector of URLs from those pages"
+  [search-term search-engines]
+  (reduce (fn [urls result]
+            (println (subs (:html result)
+                           (+ (index-of (:html result) "<a href=\"http") (count "<a href=\"") )
+                           (index-of (:html result) "\"" (+ (index-of (:html result) "<a href=\"http") (count "<a href=\"")))
+                           )))
+          []
+          (search search-term search-engines)))
+;This gets ONLY the first link. ;TODO Get all links?
+
+
+; Chapter 10: Atoms & Refs
+
+(def ch10-atom (atom {:number 0}))
+
+(defn atom-plus-three
+  "Increments an atom 3 times and returns then derefs it"
+  [the-atom]
+  (loop [index 0]
+    (if (< index 3)
+      (do
+        (swap! the-atom update-in [:number] inc)
+        (recur (inc index)))
+      @the-atom)))
+
+(defn quote-future
+  "Creates and returns a `future` that will get the word count of a quote from http://www.braveclojure.com/random-quote"
+  []
+  (future (count (slurp "http://www.braveclojure.com/random-quote"))))
+
+(defn quote-word-count
+  "Creates and returns the total word count of quotes from http://www.braveclojure.com/random-quote"
+  [num-of-quotes]
+  (loop [index 0 the-atom (atom {:word-count 0})]
+    (if (< index num-of-quotes)
+      (do
+        (swap! the-atom update-in [:word-count]
+               #(let [quote-count (quote-future)]
+                  (+ % @quote-count)))
+        (recur (inc index) the-atom))
+      @the-atom)))
+;TODO
