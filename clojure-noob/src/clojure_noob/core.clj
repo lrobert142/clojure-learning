@@ -313,8 +313,90 @@
   "Heals a player's hit points back to full, and returns the healed player"
   [healer being-healed]
   (dosync
-    ;TODO: Need to calculate amount to heal?
     (alter being-healed update-in [:current-health] +
            (- (:max-health @being-healed) (:current-health @being-healed)))
     (alter healer update-in [:inventory :healing-potion] dec))
   @being-healed)
+
+; CH 13
+
+(defmulti full-moon-behavior (fn [were-creature] (:were-type were-creature)))
+(defmethod full-moon-behavior :wolf
+    [were-creature]
+    (str (:name were-creature) " will howl and murder"))
+(defmethod full-moon-behavior :simmons
+    [were-creature]
+    (str (:name were-creature) " will encourage people and sweat to the oldies"))
+; :default will be used only if none of the above match
+(defmethod full-moon-behavior :croc
+  [were-creature]
+  (str (:name were-creature) " will swim around and eat people"))
+(defmethod full-moon-behavior :default
+  [were-creature]
+  (str (:name were-creature) " will stay up all night fantasy footballing"))
+
+; To call:
+; (full-moon-behavior {:were-type :wolf :name "Rachel from next door"})
+
+(defprotocol Psychodynamics
+  "Plumb the inner depths of your data types"
+  (thoughts [x] "The data type's innermost thoughts")
+  (feelings-about [x] [x y] "Feelings about self or other"))
+;What we are defining, but not how it is implemented
+
+;(extend-type java.lang.String
+;  Psychodynamics
+;  (thoughts [x] (str x " thinks, 'Truly, the character defines the data type'")
+;    (feelings-about
+;      ([x] (str x " is longing for a simpler way of life"))
+;      ([x y] (str x " is envious of " y "'s simpler way of life")))))
+; Protocols are similar to - but not the same as - interfaces, it seems; you define what should occur
+; but not how until you extend another object (add more functionality like an interface does)
+
+(extend-protocol Psychodynamics
+  java.lang.String
+  (thoughts [x] "Truly, the character defines the data type")
+  (feelings-about
+    ([x] "longing for a simpler way of life")
+    ([x y] (str "envious of " y "'s simpler way of life")))
+
+  java.lang.Object
+  (thoughts [x] "Maybe the Internet is just a vector for toxoplasmosis")
+  (feelings-about
+    ([x] "meh")
+    ([x y] (str "meh about " y))))
+; Allows us to implement this protocol (interface) on multiple objects
+
+(defprotocol WereCreature
+  (full-moon-behavior [x]))
+
+(defrecord WereSimmons [name title]
+  WereCreature
+  (full-moon-behavior [x]
+    (str name " will encourage people and sweat to the oldies")))
+; To call: (full-moon-behavior (->WereSimmons "Bob" "Lead Cleaner"))
+
+(defprotocol Greetings
+  "Allows objects to greet others"
+  (hello [x] "Says a friendly hello")
+  (hi [x] [x y] "A more informal greeting"))
+
+(extend-type java.lang.String
+  Greetings
+  (hello [x] (str "Hello, " x)
+    (hi
+      ([x] (str "Hi there, " x)))))
+; Although this is here for the exercise, it will be overwritten by the items below
+
+(extend-protocol Greetings
+  java.lang.String
+  (hello [x] (str "Just wanted to say hello, " x))
+  (hi
+    ([x]  (str "Well hi, " x))
+    ([x y] (str x " says hi to " y)))
+
+  java.lang.Object
+  (hello [x] "Generic Hello World!")
+  (hi
+    ([x] "Generic Hi!")
+    ([x y] (str "Generic Hi to you, " y))))
