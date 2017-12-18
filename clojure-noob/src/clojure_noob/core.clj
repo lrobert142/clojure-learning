@@ -294,4 +294,27 @@
                   (+ % @quote-count)))
         (recur (inc index) the-atom))
       @the-atom)))
-;TODO
+
+;In this basic example, inventory is just a hash-map of :item-name and quantity
+(defn generate-player
+  "Creates a player with basic details"
+  [name current-health max-health inventory]
+  {:name name
+   :current-health current-health
+   :max-health max-health
+   :inventory inventory})
+
+;First player, weakened with no inventory
+(def player1 (ref (generate-player "Player One" 15 40 {})))
+;Second player, full health with a single healing potion
+(def player2 (ref (generate-player "Player Two" 40 40 {:healing-potion 1})))
+
+(defn heal-player
+  "Heals a player's hit points back to full, and returns the healed player"
+  [healer being-healed]
+  (dosync
+    ;TODO: Need to calculate amount to heal?
+    (alter being-healed update-in [:current-health] +
+           (- (:max-health @being-healed) (:current-health @being-healed)))
+    (alter healer update-in [:inventory :healing-potion] dec))
+  @being-healed)
